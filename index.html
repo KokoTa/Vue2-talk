@@ -2,10 +2,18 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>chating</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <title>Vue2-talk</title>
   </head>
   <body>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script src="/static/js/socket.io.js"></script>
+    <script type="text/javascript">
+    	var socket = io();
+    	socket.on('online', function(msg) {
+    		console.log('当前在线人数' + msg)
+    	});
+    </script>
   </body>
 </html>

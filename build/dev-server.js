@@ -21,6 +21,20 @@ var autoOpenBrowser = !!config.dev.autoOpenBrowser
 var proxyTable = config.dev.proxyTable
 
 var app = express()
+
+// add socket.io
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+var num = 0;
+io.on('connection', (socket) => {
+  num++;
+  socket.broadcast.emit('online', num);
+  socket.on('disconnect', () => {
+    num--;
+    socket.broadcast.emit('offline', num);
+  })
+});
+
 var compiler = webpack(webpackConfig)
 
 var devMiddleware = require('webpack-dev-middleware')(compiler, {
@@ -80,7 +94,10 @@ devMiddleware.waitUntilValid(() => {
   _resolve()
 })
 
-var server = app.listen(port)
+// https://stackoverflow.com/questions/44913881/socket-io-404-not-found
+// 总之只能使用http.Server创建的实例服务器，express创建的服务器被拒绝使用
+// var server = app.listen(port)
+server.listen(port)
 
 module.exports = {
   ready: readyPromise,
