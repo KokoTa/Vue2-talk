@@ -41,13 +41,13 @@
 		},
 		methods: {
 			...mapMutations([
-				'CHANGE_USERNAME'
+				'INIT_DATA'
 			]),
 			login() {
 				if(this.name === "") {
 					return;
 				}
-				this.CHANGE_USERNAME(this.name);
+				this.INIT_DATA(this.name);
 				this.$router.push('chat');
 			}
 		}

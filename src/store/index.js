@@ -1,17 +1,23 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-const CHANGE_USERNAME = 'CHANGE_USERNAME';
+const INIT_DATA = 'INIT_DATA';
+const CLEAR_DATA = 'CLEAR_DATA';
 
 Vue.use(Vuex);
 
 const state = {
 	userName: '',
-	avatarUrl: '/static/avatar/'
+	avatarUrl: ''
 }
 
 const mutations = {
-	[CHANGE_USERNAME](state, name) {
+	[INIT_DATA](state, name) {
 		state.userName = name;
+		state.avatarUrl = '/static/avatar/' + Math.floor(Math.random()*23 + 1) + '.jpg';
+	},
+	[CLEAR_DATA](state) {
+		state.userName = '';
+		state.avatarUrl = '';
 	}
 }
 

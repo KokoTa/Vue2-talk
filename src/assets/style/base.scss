@@ -8,6 +8,7 @@ html, body {
   background: #eee;
   margin: 0;
   font-size: 10px;
+  overflow: hidden;
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -15,4 +16,19 @@ html, body {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active in below version 2.1.8 */ {
   opacity: 0;
+}
+
+.slide-right-enter, .slide-right-leave-to{
+	transform: translateX(-2rem);
+	opacity: 0;
+}
+.slide-right-enter-active, .slide-right-leave-active {
+	transition: all .5s;
+}
+
+@media only screen and (min-width: 769px){
+  body {
+    width: 50%;
+    margin: auto;
+  }
 }
