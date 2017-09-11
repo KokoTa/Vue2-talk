@@ -19,7 +19,7 @@
 				</div>
 			</transition>
 			<button @click="showEmoji=!showEmoji">Emoji</button>
-			<textarea v-model.trim="text"></textarea>
+			<textarea v-model.trim="text" rows="1" @input="lineStandard"></textarea>
 			<button>提交</button>
 		</footer>
 	</div>
@@ -34,7 +34,8 @@
 			return {
 				showEmoji: false,
 				emojis: ['😂', '🙏', '😄', '😏', '😇', '😅', '😌', '😘', '😍', '🤓', '😜', '😎', '😊', '😳', '🙄', '😱', '😒', '😔', '😷', '👿', '🤗', '😩', '😤', '😣', '😰', '😴', '😬', '😭', '👻', '👍', '✌️', '👉', '👀', '🐶', '🐷', '😹', '⚡️', '🔥', '🌈', '🍏', '⚽️', '❤️', '🇨🇳'],
-				text: ''
+				text: '',
+				textDOM: {}
 			}
 		},
 		methods: {
@@ -47,7 +48,14 @@
 			},
 			insertEmoji(index) {
 				this.text += this.emojis[index];
+				this.textDOM.focus();
+			},
+			lineStandard() {
+				this.textDOM.scrollTop = this.textDOM.scrollHeight - this.textDOM.clientHeight;
 			}
+		},
+		mounted() {
+			this.textDOM = document.querySelector('textarea');
 		}
 	}
 </script>
@@ -91,10 +99,10 @@
 		}
 		textarea {
 			flex: 1;
-			font-size: 2rem;
-			line-height: 2rem;
+			font-size: 3rem;
+			line-height: 3rem;
 			width: 1rem; /* 设置的值大小无所谓，不设置宽度flex布局会混乱 */
-			padding: 10px;
+			padding: .5rem 1rem;
 			color: gray;
 			resize: none;
 			overflow: auto;
