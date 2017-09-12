@@ -9,10 +9,10 @@
 			<div class="chat-area" v-for="item in allText">
 				<div v-if="item.userName==userName">
 					<div class="chat-time">
-						2017-1-1...
+						{{item.date}}
 					</div>
 					<div class="chat-msg">
-						<span class="chat-local">[ 泉州 ]</span>
+						<span class="chat-local">[ {{item.userLocal}} ]</span>
 						<span class="chat-author">{{item.userName}}</span>
 						<img :src="item.avatarUrl">
 					</div>
@@ -22,12 +22,12 @@
 				</div>
 				<div v-else>
 					<div class="chat-time">
-						2017-1-1...
+						{{item.date}}
 					</div>
 					<div class="chat-msg chat-msg-other">
 						<img :src="item.avatarUrl">
 						<span class="chat-author">{{item.userName}}</span>
-						<span class="chat-local">[ 泉州 ]</span>
+						<span class="chat-local">[ {{item.userLocal}} ]</span>
 					</div>
 					<div class="chat-content chat-content-other">
 						{{item.text}}
@@ -56,6 +56,7 @@
 
 <script>
 	import { mapState, mapMutations } from 'vuex'
+	import moment from 'moment'
 
 	export default {
 		name: 'Chat',
@@ -65,7 +66,8 @@
 				emojis: ['😂', '🙏', '😄', '😏', '😇', '😅', '😌', '😘', '😍', '🤓', '😜', '😎', '😊', '😳', '🙄', '😱', '😒', '😔', '😷', '👿', '🤗', '😩', '😤', '😣', '😰', '😴', '😬', '😭', '👻', '👍', '✌️', '👉', '👀', '🐶', '🐷', '😹', '⚡️', '🔥', '🌈', '🍏', '⚽️', '❤️', '🇨🇳'],
 				text: '',
 				textDOM: {},
-				allText: []
+				allText: [],
+				userLocal: ''
 			}
 		},
 		computed: {
@@ -95,7 +97,9 @@
 				let info = {
 					text: this.text,
 					userName: this.userName,
-					avatarUrl: this.avatarUrl
+					avatarUrl: this.avatarUrl,
+					userLocal: this.userLocal,
+					date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
 				};
 				socket.emit('groupMsg', info);
 				this.allText.push(info);
@@ -123,6 +127,12 @@
 			socket.on('outerText', (msg) => {
 				this.allText.push(msg);
 			})
+
+			// 获得定位
+			this.axios.get('/api')
+				.then((res) => {
+					this.userLocal = res.data.content.address;
+				});
 		}
 	}
 </script>

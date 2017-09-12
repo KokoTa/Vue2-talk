@@ -27,18 +27,17 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var num = 0;
 io.on('connection', (socket) => {
-  num++;
-  socket.broadcast.emit('online', num);
+
+  socket.broadcast.emit('online', ++num);
+  
   socket.on('disconnect', () => {
-    num--;
-    socket.broadcast.emit('offline', num);
+    socket.broadcast.emit('offline', --num);
   });
 
   socket.on('groupMsg', (msg) => {
     socket.broadcast.emit('outerText', msg);
   });
 
-  
 });
 
 var compiler = webpack(webpackConfig)
