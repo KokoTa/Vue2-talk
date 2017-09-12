@@ -32,7 +32,13 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     num--;
     socket.broadcast.emit('offline', num);
-  })
+  });
+
+  socket.on('groupMsg', (msg) => {
+    socket.broadcast.emit('outerText', msg);
+  });
+
+  
 });
 
 var compiler = webpack(webpackConfig)
