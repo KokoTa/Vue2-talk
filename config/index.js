@@ -35,6 +35,13 @@ module.exports = {
             pathRewrite: {
                 '^/api': '' // 设置'^/api': '/xx'后访问/api/xx，等于访问/api
             }
+        },
+        '/AI': {
+            target: 'http://www.tuling123.com/openapi/api',
+            changeOrigin: true,
+            pathRewrite: {
+                '^/AI': '' // 设置'^/api': '/xx'后访问/api/xx，等于访问/api
+            }
         }
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"

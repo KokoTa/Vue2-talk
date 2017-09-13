@@ -1,7 +1,6 @@
 <template>
 	<div class="chat-container">
 		<header>
-			<button @click="gotoAI">A I</button>
 			<button @click="gotoIndex">主 页</button>
 		</header>
 
@@ -37,17 +36,6 @@
 		</section>
 
 		<footer>
-			<transition name='slide-right'>
-				<div class="emoji" v-show="showEmoji">
-					<ul v-if="emojis.length">
-						<li v-for="(item, index) in emojis"
-							@click="insertEmoji(index)">
-							{{item}}
-						</li>
-					</ul>
-				</div>
-			</transition>
-			<button @click="showEmoji=!showEmoji">Emoji</button>
 			<textarea v-model.trim="text" rows="1" @input="lineStandard" @keyup.ctrl.enter="sendMsg"></textarea>
 			<button @click="sendMsg">提交</button>
 		</footer>
@@ -63,11 +51,12 @@
 		data() {
 			return {
 				showEmoji: false,
-				emojis: ['😂', '🙏', '😄', '😏', '😇', '😅', '😌', '😘', '😍', '🤓', '😜', '😎', '😊', '😳', '🙄', '😱', '😒', '😔', '😷', '👿', '🤗', '😩', '😤', '😣', '😰', '😴', '😬', '😭', '👻', '👍', '✌️', '👉', '👀', '🐶', '🐷', '😹', '⚡️', '🔥', '🌈', '🍏', '⚽️', '❤️', '🇨🇳'],
 				text: '',
 				textDOM: {},
 				allText: [],
-				userLocal: ''
+				userLocal: '',
+				userid: 0,
+				AINum: Math.floor(Math.random()*23 + 1)
 			}
 		},
 		computed: {
@@ -94,44 +83,36 @@
 			},
 			sendMsg() {
 				if(this.text=='') return;
-				let info = {
+
+				this.allText.push({
 					text: this.text,
 					userName: this.userName,
 					avatarUrl: this.avatarUrl,
 					userLocal: this.userLocal,
 					date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
-				};
-				socket.emit('groupMsg', info);
-				this.allText.push(info);
+				})
+
+				this.axios.post('/AI', {
+					"info": this.text,
+					"userid": this.userid,
+					"key": 'cbcb99ec886842b48e37e4719cfbaaa8'
+				})
+				.then((res) => {
+					this.allText.push({
+						text: res.data.text,
+						userName: '自嗨机器人',
+						avatarUrl: '/static/avatar/' + this.AINum + '.jpg',
+						userLocal: '第三世界',
+						data: moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
+					});
+				});
+
 				this.text = '';
-			},
-			gotoAI() {
-				this.$router.push('/AI');
 			}
 		},
 		mounted() {
 			this.textDOM = document.querySelector('textarea');
-
-			// 显示在线人数
-			socket.on('online', (msg) => {
-				let num = document.createElement('div');
-				num.className = 'linePeople';
-				num.textContent = '当前在线' + msg + '人';
-				document.querySelector('section').appendChild(num);
-			});
-			socket.on('offline', (msg) => {
-				let num = document.createElement('div');
-				num.className = 'linePeople';
-				num.textContent = '当前在线' + msg + '人';
-				document.querySelector('section').appendChild(num);
-			});
-
-			// 建立连接，接收信息
-			socket.on('outerText', (msg) => {
-				this.allText.push(msg);
-			})
-
-			// 获得定位
+			this.userid = Math.floor(Math.random()*100);
 			this.axios.get('/api')
 				.then((res) => {
 					this.userLocal = res.data.content.address;
