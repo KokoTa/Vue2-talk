@@ -78,7 +78,8 @@
 		},
 		methods: {
 			...mapMutations([
-				'CLEAR_DATA'
+				'CLEAR_DATA',
+				'CHECK_LOGIN'
 			]),
 			gotoIndex() {
 				this.CLEAR_DATA();
@@ -111,6 +112,7 @@
 		},
 		mounted() {
 			this.textDOM = document.querySelector('textarea');
+			this.CHECK_LOGIN();
 
 			// 显示在线人数
 			socket.on('online', (msg) => {
