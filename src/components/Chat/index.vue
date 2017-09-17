@@ -79,7 +79,8 @@
 		methods: {
 			...mapMutations([
 				'CLEAR_DATA',
-				'CHECK_LOGIN'
+				'CHECK_LOGIN',
+				'CHAT_STANDARD'
 			]),
 			gotoIndex() {
 				this.CLEAR_DATA();
@@ -138,6 +139,9 @@
 				.then((res) => {
 					this.userLocal = res.data.content.address;
 				});
+		},
+		updated() {
+			this.CHAT_STANDARD();
 		}
 	}
 </script>

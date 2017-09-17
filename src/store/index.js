@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 const INIT_DATA = 'INIT_DATA';
 const CLEAR_DATA = 'CLEAR_DATA';
 const CHECK_LOGIN = 'CHECK_LOGIN';
+const CHAT_STANDARD = 'CHAT_STANDARD';
 
 Vue.use(Vuex);
 
@@ -26,6 +27,11 @@ const mutations = {
 			state.userName = '匿名';
 			state.avatarUrl = '/static/avatar/Ni.jpg';
 		}
+	},
+	[CHAT_STANDARD](state) {
+		let chatDOM = document.querySelector('section');
+		let fHeight = document.querySelector('footer').clientHeight;
+		chatDOM.scrollTop = chatDOM.scrollHeight - chatDOM.clientHeight + fHeight;
 	}
 
 }

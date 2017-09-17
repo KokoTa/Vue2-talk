@@ -19,8 +19,9 @@
 					<ul>
 						<li>Vue三剑客</li>
 						<li>Socket.io</li>
-						<li>图灵机器银</li>
 						<li>axios</li>
+						<li>图灵机器人</li>
+						<li>百度地图API</li>
 					</ul>
 				</div>
 			</article>
@@ -95,8 +96,12 @@
 			width: 20rem;
 			font-size: 3rem;
 			font-weight: bolder;
-			padding: 1rem;
+			padding: 2rem;
 			outline: none;
+			background: inherit;
+			border: none;
+			border-bottom: 1px solid white;
+			color: white;
 		}
 	}
 	.mask {
@@ -111,7 +116,7 @@
 		justify-content: center;
 		align-items: center;
 		.about {
-			height: 30rem;
+			height: 32rem;
 			width: 20rem;
 			background: #eee;
 			text-align: center;
