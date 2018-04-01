@@ -1,19 +1,19 @@
 <template>
 	<div class="chat-container">
 		<header>
-			<button @click="gotoIndex">主 页</button>
+			<button @click="goback">返 回</button>
 		</header>
 
 		<section>
-			<div class="chat-area" v-for="item in allText">
-				<div v-if="item.userName==userName">
+			<div class="chat-area" v-for="(item, index) in allText" :key="index">
+				<div v-if="item.user_name==user_name">
 					<div class="chat-time">
 						{{item.date}}
 					</div>
 					<div class="chat-msg">
-						<span class="chat-local">[ {{item.userLocal}} ]</span>
-						<span class="chat-author">{{item.userName}}</span>
-						<img :src="item.avatarUrl">
+						<span class="chat-local">[ {{item.user_local}} ]</span>
+						<span class="chat-author">{{item.user_name}}</span>
+						<img :src="item.avatar_url">
 					</div>
 					<div class="chat-content">
 						{{item.text}}
@@ -24,9 +24,9 @@
 						{{item.date}}
 					</div>
 					<div class="chat-msg chat-msg-other">
-						<img :src="item.avatarUrl">
-						<span class="chat-author">{{item.userName}}</span>
-						<span class="chat-local">[ {{item.userLocal}} ]</span>
+						<img :src="item.avatar_url">
+						<span class="chat-author">{{item.user_name}}</span>
+						<span class="chat-local">[ {{item.user_local}} ]</span>
 					</div>
 					<div class="chat-content chat-content-other">
 						{{item.text}}
@@ -50,35 +50,27 @@
 		name: 'Chat',
 		data() {
 			return {
-				showEmoji: false,
 				text: '',
 				textDOM: {},
 				allText: [],
-				userLocal: '',
+				user_local: '',
 				userid: 0,
 				AINum: Math.floor(Math.random()*23 + 1)
 			}
 		},
 		computed: {
 			...mapState([
-				'userName',
-				'avatarUrl'
+				'user_name',
+				'avatar_url'
 			])
 		},
 		methods: {
 			...mapMutations([
 				'CLEAR_DATA',
-				'CHECK_LOGIN',
 				'CHAT_STANDARD'
 			]),
-			gotoIndex() {
-				this.CLEAR_DATA();
-				this.$router.push('/');
-			},
-			insertEmoji(index) {
-				this.text += this.emojis[index];
-				this.textDOM.focus();
-				this.lineStandard();
+			goback() {
+				this.$router.go(-1);
 			},
 			lineStandard() {
 				this.textDOM.scrollTop = this.textDOM.scrollHeight - this.textDOM.clientHeight;
@@ -88,9 +80,9 @@
 
 				this.allText.push({
 					text: this.text,
-					userName: this.userName,
-					avatarUrl: this.avatarUrl,
-					userLocal: this.userLocal,
+					user_name: this.user_name,
+					avatar_url: this.avatar_url,
+					user_local: this.user_local,
 					date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
 				})
 
@@ -102,9 +94,9 @@
 				.then((res) => {
 					this.allText.push({
 						text: res.data.text,
-						userName: '自嗨机器人',
-						avatarUrl: '/static/avatar/' + this.AINum + '.jpg',
-						userLocal: '第三世界',
+						user_name: '自嗨机器人',
+						avatar_url: '/static/avatar/' + this.AINum + '.jpg',
+						user_local: '第三世界',
 						data: moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
 					});
 				});
@@ -114,11 +106,10 @@
 		},
 		mounted() {
 			this.textDOM = document.querySelector('textarea');
-			this.CHECK_LOGIN();
 			this.userid = Math.floor(Math.random()*100);
 			this.axios.get('/api')
 				.then((res) => {
-					this.userLocal = res.data.content.address;
+					this.user_local = res.data.content.address;
 				});
 		},
 		updated() {

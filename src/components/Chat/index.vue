@@ -90,18 +90,20 @@
 				'INIT_GROUPNAME',
 				'CLEAR_GROUPID',
 			]),
-			quitGroup() { // 退出分组
+			quitGroup() { // 退出分组(清空数据库、本地状态并进行下线通知)
 				const req = {
 					name: this.user_name,
 					password: this.password
 				}
-				this.axios.put('/server/quitGroup', req)
+				this.axios.put('/server/quitGroup', req) // 清空数据库状态
 					.then((res) => {
-						console.log(res)
-						this.CLEAR_GROUPID();
-						this.socket.emit('quitGroup')
+						this.CLEAR_GROUPID(); // 清空本地状态
+						this.socket.emit('quitGroup') // 广播下线通知
 						this.$router.push('choice')
 					})
+			},
+			quitGroupSimple() { // 退出分组(只进行下线通知)
+				this.socket.emit('quitGroup')
 			},
 			insertEmoji(index) { // 插入表情
 				this.text += this.emojis[index];
@@ -125,7 +127,6 @@
 				// 保存至数据库
 				this.axios.post('/server/saveInfo', info)
 					.then((res) => {
-						console.log(res)
 						if (res.data.code === 0) {
 							// 广播消息
 							this.socket.emit('groupMsg', info);
@@ -135,6 +136,7 @@
 					})
 			},
 			gotoAI() { // 跳转至AI页
+				this.quitGroupSimple()
 				this.$router.push('/AI');
 			},
 			getGroupInfo() { // 获得该分组信息
@@ -149,7 +151,6 @@
 			getGroupMsg() { // 获得该分组内消息
 				this.axios.get(`/server/getInfos/${this.group_id}`)
 					.then((res) => {
-						console.log(res)
 						if (res.data.code === 0) {
 							this.infos = res.data.data
 						}
@@ -162,18 +163,20 @@
 			// 初始化连接
 			this.socket = io(`http://localhost:3000?group_id=${this.group_id}`)
 
-			// 监听事件，显示在线人数
+			// 监听事件，显示当前房间在线人数
 			this.socket.on('online', (msg) => {
 				let num = document.createElement('div');
 				num.className = 'linePeople';
-				num.textContent = '当前应用在线' + msg + '人';
+				num.textContent = '当前在线' + msg + '人';
 				document.querySelector('section').appendChild(num);
+				this.CHAT_STANDARD(); // 手动插入不会出发updated生命周期，需要手动调用
 			});
 			this.socket.on('offline', (msg) => {
 				let num = document.createElement('div');
 				num.className = 'linePeople';
-				num.textContent = '当前应用在线' + msg + '人';
+				num.textContent = '当前在线' + msg + '人';
 				document.querySelector('section').appendChild(num);
+				this.CHAT_STANDARD();
 			});
 
 			// 监听事件，接收信息

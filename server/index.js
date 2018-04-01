@@ -10,11 +10,6 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 const router = require('./router')
 
-const Model = require('./db/model')
-
-// 所有房间号(分组Id)
-const rooms = [];
-
 // 解析 application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 // 解析 application/json

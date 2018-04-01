@@ -52,7 +52,6 @@ export default {
       groups: [],
       newGroupName: '',
       alert: '',
-
       visible: false,
     }
   },
@@ -101,9 +100,8 @@ export default {
         password: this.password,
         group_id: id
       }
-      this.axios.post('/server/saveGroup', req)
+      this.axios.post('/server/saveGroup', req) // 保存分组id
         .then((res) => {
-          console.log(res)
           this.$router.push('chat')
         })
     }
