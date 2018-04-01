@@ -20,25 +20,8 @@ var autoOpenBrowser = !!config.dev.autoOpenBrowser
 // https://github.com/chimurai/http-proxy-middleware
 var proxyTable = config.dev.proxyTable
 
+// 服务器实例
 var app = express()
-
-// add socket.io
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
-var num = 0;
-io.on('connection', (socket) => {
-
-  socket.broadcast.emit('online', ++num);
-  
-  socket.on('disconnect', () => {
-    socket.broadcast.emit('offline', --num);
-  });
-
-  socket.on('groupMsg', (msg) => {
-    socket.broadcast.emit('outerText', msg);
-  });
-
-});
 
 var compiler = webpack(webpackConfig)
 
@@ -99,10 +82,26 @@ devMiddleware.waitUntilValid(() => {
   _resolve()
 })
 
-// https://stackoverflow.com/questions/44913881/socket-io-404-not-found
-// 总之只能使用http.Server创建的实例服务器，express创建的服务器被拒绝使用
-// var server = app.listen(port)
-server.listen(port)
+var server = app.listen(port)
+
+// // 嵌套 socket 模块
+// var server = app.listen(port);
+// var io = require('socket.io')(server);
+// var num = 0; // 在线人数统计
+// io.on('connection', (socket) => { // 当有连接进入时
+
+//   socket.broadcast.emit('online', ++num); // 向其他人广播online事件
+  
+//   socket.on('disconnect', () => { // 当有人断开时
+//     socket.broadcast.emit('offline', --num); // 向其他人广播offline事件
+//   });
+
+//   socket.on('groupMsg', (msg) => { // 当有人发送消息时
+//     socket.broadcast.emit('outerText', msg); // 向其他人广播outerText事件
+//   });
+
+// });
+// server.listen(port)
 
 module.exports = {
   ready: readyPromise,

@@ -6,25 +6,36 @@
 header {
   position: absolute;
   top: 0;
-  height: 4rem;
+  height: 5rem;
   width: 100%;
-  background: #BDBDD7;
-  button {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  button, span {
+    width: 6rem;
+    font-size: 2rem;
     height: 100%;
     background: transparent;
     border: none;
     outline: none;
     color: #E9E2D0;
-    padding: 0 20px;
   }
-  button:nth-of-type(2) {
-    float: right;
+  button:hover {
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+  }
+  span {
+    flex: 1;
+    text-align: center;
+    line-height: 4.5rem;
   }
 }
 
 section {
   height: 100%;
-  padding: 4rem 0;
+  padding: 5rem 0;
   overflow: auto;
   ::-webkit-scrollbar{
     display:none;
@@ -75,21 +86,22 @@ section {
 footer {
   position: absolute;
   bottom: 0;
-  height: 4rem;
+  height: 5rem;
   width: 100%;
   display: flex;
   justify-content: center;
   align-item: center;
   button {
-    flex-basis: 4rem;
-    background: #BDBDD7;
-    color: #E9E2D0;
+    font-size: 1.5rem;
+    flex-basis: 5rem;
+    background: #000;
+    color: #fff;
   }
   textarea {
     flex: 1;
-    font-size: 3rem;
-    line-height: 3rem;
-    width: 1rem; /* 设置的值大小无所谓，不设置宽度flex布局会混乱 */
+    font-size: 2rem;
+    line-height: 4rem;
+    // width: 1rem; /* 设置的值大小无所谓，不设置宽度flex布局会混乱 */
     padding: .5rem 1rem;
     color: gray;
     resize: none;
@@ -107,7 +119,7 @@ footer {
     width: 100%;
     height: 8rem;
     position: absolute;
-    bottom: 4rem;
+    bottom: 5rem;
     display: flex;
     background: white;
     ul {

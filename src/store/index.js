@@ -1,37 +1,54 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-const INIT_DATA = 'INIT_DATA';
+const INIT_USER = 'INIT_USER';
+const INIT_GROUPID = 'INIT_GROUPID';
+const INIT_GROUPNAME = 'INIT_GROUPNAME';
 const CLEAR_DATA = 'CLEAR_DATA';
+const CLEAR_GROUPID = 'CLEAR_GROUPID';
 const CHECK_LOGIN = 'CHECK_LOGIN';
 const CHAT_STANDARD = 'CHAT_STANDARD';
 
 Vue.use(Vuex);
 
 const state = {
-	userName: '',
-	avatarUrl: ''
+	// 当前用户
+	user_name: '',
+	password: '',
+	avatar_url: '',
+
+	// 用户分组
+	group_id: '',
+	group_name: '',
+
+	// 分组消息
+	messages: [],
 }
 
 const mutations = {
-	[INIT_DATA](state, name) {
-		state.userName = name;
-		state.avatarUrl = '/static/avatar/' + Math.floor(Math.random()*23 + 1) + '.jpg';
+	[INIT_USER](state, { name, password, avatar_url }) { // 初始化用户
+		state.user_name = name
+		state.password = password
+		state.avatar_url = avatar_url
 	},
-	[CLEAR_DATA](state) {
-		state.userName = '';
-		state.avatarUrl = '';
+	[INIT_GROUPID](state, group_id) { // 赋值分组id
+		state.group_id = group_id
 	},
-	[CHECK_LOGIN](state) {
-		if(!state.userName) {
-			alert('使用的用户名已失效，现在您将以匿名形式进行会话');
-			state.userName = '匿名';
-			state.avatarUrl = '/static/avatar/Ni.jpg';
-		}
+	[INIT_GROUPNAME](state, group_name) {
+		state.group_name = group_name
+	},
+	[CLEAR_GROUPID](state) {
+		state.group_id = ''
+	},
+	[CLEAR_DATA](state) { // 清空数据
+		state.user_name = ''
+		state.password = ''
+		state.avatar_url = ''
+		state.group_id = ''
 	},
 	[CHAT_STANDARD](state) {
-		let chatDOM = document.querySelector('section');
-		let fHeight = document.querySelector('footer').clientHeight;
-		chatDOM.scrollTop = chatDOM.scrollHeight - chatDOM.clientHeight + fHeight;
+		let chatDOM = document.querySelector('section')
+		let fHeight = document.querySelector('footer').clientHeight
+		chatDOM.scrollTop = chatDOM.scrollHeight - chatDOM.clientHeight + fHeight
 	}
 
 }

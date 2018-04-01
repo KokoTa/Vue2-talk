@@ -2,19 +2,20 @@
 	<div class="chat-container">
 		<header>
 			<button @click="gotoAI">A I</button>
-			<button @click="gotoIndex">主 页</button>
+			<span>{{ group_name }}</span>
+			<button @click="quitGroup">退 出</button>
 		</header>
 
 		<section>
-			<div class="chat-area" v-for="item in allText">
-				<div v-if="item.userName==userName">
+			<div class="chat-area" v-for="(item, index) in infos" :key="index">
+				<div v-if="item.user_name==user_name">
 					<div class="chat-time">
 						{{item.date}}
 					</div>
 					<div class="chat-msg">
-						<span class="chat-local">[ {{item.userLocal}} ]</span>
-						<span class="chat-author">{{item.userName}}</span>
-						<img :src="item.avatarUrl">
+						<span class="chat-local">[ {{item.user_local}} ]</span>
+						<span class="chat-author">{{item.user_name}}</span>
+						<img :src="item.avatar_url">
 					</div>
 					<div class="chat-content">
 						{{item.text}}
@@ -25,9 +26,9 @@
 						{{item.date}}
 					</div>
 					<div class="chat-msg chat-msg-other">
-						<img :src="item.avatarUrl">
-						<span class="chat-author">{{item.userName}}</span>
-						<span class="chat-local">[ {{item.userLocal}} ]</span>
+						<img :src="item.avatar_url">
+						<span class="chat-author">{{item.user_name}}</span>
+						<span class="chat-local">[ {{item.user_local}} ]</span>
 					</div>
 					<div class="chat-content chat-content-other">
 						{{item.text}}
@@ -41,7 +42,8 @@
 				<div class="emoji" v-show="showEmoji">
 					<ul v-if="emojis.length">
 						<li v-for="(item, index) in emojis"
-							@click="insertEmoji(index)">
+							@click="insertEmoji(index)"
+							:key="index">
 							{{item}}
 						</li>
 					</ul>
@@ -57,6 +59,7 @@
 <script>
 	import { mapState, mapMutations } from 'vuex'
 	import moment from 'moment'
+	import io from 'socket.io-client' // 当前页面引入socket
 
 	export default {
 		name: 'Chat',
@@ -66,82 +69,134 @@
 				emojis: ['😂', '🙏', '😄', '😏', '😇', '😅', '😌', '😘', '😍', '🤓', '😜', '😎', '😊', '😳', '🙄', '😱', '😒', '😔', '😷', '👿', '🤗', '😩', '😤', '😣', '😰', '😴', '😬', '😭', '👻', '👍', '✌️', '👉', '👀', '🐶', '🐷', '😹', '⚡️', '🔥', '🌈', '🍏', '⚽️', '❤️', '🇨🇳'],
 				text: '',
 				textDOM: {},
-				allText: [],
-				userLocal: ''
+				infos: [],
+				user_local: '',
 			}
 		},
 		computed: {
 			...mapState([
-				'userName',
-				'avatarUrl'
+				'user_name',
+				'avatar_url',
+				'password',
+				'group_id',
+				'group_name',
 			])
 		},
 		methods: {
 			...mapMutations([
 				'CLEAR_DATA',
 				'CHECK_LOGIN',
-				'CHAT_STANDARD'
+				'CHAT_STANDARD',
+				'INIT_GROUPNAME',
+				'CLEAR_GROUPID',
 			]),
-			gotoIndex() {
-				this.CLEAR_DATA();
-				this.$router.push('/');
+			quitGroup() { // 退出分组
+				const req = {
+					name: this.user_name,
+					password: this.password
+				}
+				this.axios.put('/server/quitGroup', req)
+					.then((res) => {
+						console.log(res)
+						this.CLEAR_GROUPID();
+						this.socket.emit('quitGroup')
+						this.$router.push('choice')
+					})
 			},
-			insertEmoji(index) {
+			insertEmoji(index) { // 插入表情
 				this.text += this.emojis[index];
 				this.textDOM.focus();
 				this.lineStandard();
 			},
-			lineStandard() {
+			lineStandard() { // 格式化输入后的样式
 				this.textDOM.scrollTop = this.textDOM.scrollHeight - this.textDOM.clientHeight;
 			},
-			sendMsg() {
+			sendMsg() { // 发送数据(保存至数据库 + 广播消息)
 				if(this.text=='') return;
-				let info = {
+
+				const info = {
 					text: this.text,
-					userName: this.userName,
-					avatarUrl: this.avatarUrl,
-					userLocal: this.userLocal,
-					date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
+					user_name: this.user_name,
+					avatar_url: this.avatar_url,
+					user_local: this.user_local,
+					date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+					group_id: this.group_id
 				};
-				socket.emit('groupMsg', info);
-				this.allText.push(info);
-				this.text = '';
+				// 保存至数据库
+				this.axios.post('/server/saveInfo', info)
+					.then((res) => {
+						console.log(res)
+						if (res.data.code === 0) {
+							// 广播消息
+							this.socket.emit('groupMsg', info);
+							this.infos.push(info);
+							this.text = '';
+						}
+					})
 			},
-			gotoAI() {
+			gotoAI() { // 跳转至AI页
 				this.$router.push('/AI');
-			}
+			},
+			getGroupInfo() { // 获得该分组信息
+				this.axios.get(`/server/getGroup/${this.group_id}`)
+					.then((res) => {
+						if (res.data.code === 0) {
+							this.INIT_GROUPNAME(res.data.data.name)
+							this.getGroupMsg()
+						}
+					})
+			},
+			getGroupMsg() { // 获得该分组内消息
+				this.axios.get(`/server/getInfos/${this.group_id}`)
+					.then((res) => {
+						console.log(res)
+						if (res.data.code === 0) {
+							this.infos = res.data.data
+						}
+					})
+			},
 		},
 		mounted() {
 			this.textDOM = document.querySelector('textarea');
-			this.CHECK_LOGIN();
 
-			// 显示在线人数
-			socket.on('online', (msg) => {
+			// 初始化连接
+			this.socket = io(`http://localhost:3000?group_id=${this.group_id}`)
+
+			// 监听事件，显示在线人数
+			this.socket.on('online', (msg) => {
 				let num = document.createElement('div');
 				num.className = 'linePeople';
-				num.textContent = '当前在线' + msg + '人';
+				num.textContent = '当前应用在线' + msg + '人';
 				document.querySelector('section').appendChild(num);
 			});
-			socket.on('offline', (msg) => {
+			this.socket.on('offline', (msg) => {
 				let num = document.createElement('div');
 				num.className = 'linePeople';
-				num.textContent = '当前在线' + msg + '人';
+				num.textContent = '当前应用在线' + msg + '人';
 				document.querySelector('section').appendChild(num);
 			});
 
-			// 建立连接，接收信息
-			socket.on('outerText', (msg) => {
-				this.allText.push(msg);
+			// 监听事件，接收信息
+			this.socket.on('outerText', (msg) => {
+				this.infos.push(msg);
 			})
 
 			// 获得定位
 			this.axios.get('/api')
 				.then((res) => {
-					this.userLocal = res.data.content.address;
+					this.user_local = res.data.content.address;
 				});
 		},
-		updated() {
+		updated() { // 数据更新时对聊天界面的显示进行格式化
 			this.CHAT_STANDARD();
+		},
+		created() {
+			if (!this.group_id) { // 没有分组就不能进入此路由
+				this.$router.redirect('/choice')
+			} else {
+				this.INIT_GROUPNAME('')
+				this.getGroupInfo()
+			}
 		}
 	}
 </script>

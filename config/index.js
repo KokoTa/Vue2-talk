@@ -33,14 +33,21 @@ module.exports = {
             target: 'http://api.map.baidu.com/location/ip?ak=wWT6fNIAKNio9G4MSr3tREyqSysMdAay&coor=bd09ll',
             changeOrigin: true,
             pathRewrite: {
-                '^/api': '' // 设置'^/api': '/xx'后访问/api/xx，等于访问/api
+                '^/api': '' // 设置'^/api': 访问/api/xx，等于访问/api
             }
         },
         '/AI': {
             target: 'http://www.tuling123.com/openapi/api',
             changeOrigin: true,
             pathRewrite: {
-                '^/AI': '' // 设置'^/api': '/xx'后访问/api/xx，等于访问/api
+                '^/AI': '' // 设置'^/api': 访问/api/xx，等于访问/api
+            }
+        },
+        '/server': {
+            target: 'http://localhost:3000',
+            changeOrigin: true,
+            pathRewrite: {
+                '^/server': ''
             }
         }
     },

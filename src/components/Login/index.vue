@@ -1,31 +1,45 @@
 <template>
 	<div class="login-container">
-		<header>
-			<a href="https://github.com/KokoTa" target="_blank">Author</a>
-			<a href="#" @click='openMask=!openMask'>About</a>
-		</header>
 		<section>
-			<h1>请输入名字</h1>
-			<input type="text"
-				v-model.trim="name" 
-				@keyup.enter="login" 
-				autofocus>
+			<h1>
+				<span
+					class="icon"
+					:class="{ 'active': type }"
+					@click="type = true">
+					登录
+				</span>
+				<span class="icon-or">Or</span>
+				<span
+					class="icon"
+					:class="{ 'active': !type }"
+					@click="type = false">
+					注册
+				</span>
+			</h1>
+			<div class="line">
+				<span class="line-title">用户名：</span>
+				<input 
+					class="line-input"
+					type="text"
+					v-model.trim="name" 
+					@keyup.enter="operate"
+					autofocus>
+			</div>
+			<div class="line">
+				<span class="line-title">密码：</span>
+				<input 
+					class="line-input"
+					type="password"
+					v-model.trim="password" 
+					@keyup.enter="operate">
+			</div>
+			<div class="line">
+				<button class="line-button" @click="operate">确认</button>
+			</div>
+			<div class="line">
+				<span class="line-alert">{{ alert }}</span>
+			</div>
 		</section>
-		<transition name="fade" mode="out-in">
-			<article class="mask" v-show="openMask" @click='openMask=!openMask'>
-				<div class="about">
-					<h1>Vue2-talk</h1>
-					<h1>技术栈</h1>
-					<ul>
-						<li>Vue三剑客</li>
-						<li>Socket.io</li>
-						<li>axios</li>
-						<li>图灵机器人</li>
-						<li>百度地图API</li>
-					</ul>
-				</div>
-			</article>
-		</transition>
 	</div>
 </template>
 
@@ -36,21 +50,65 @@
 		name: 'Login',
 		data() {
 			return {
-				openMask: false,
-				name: ''
+				type: true, // true 代表登录；false 代表注册
+				name: '',
+				password: '',
+				alert: ''
 			}
 		},
 		methods: {
 			...mapMutations([
-				'INIT_DATA'
+				'INIT_USER',
+				'INIT_GROUPID',
+				'CLEAR_DATA'
 			]),
-			login() {
-				if(this.name === "") {
-					return;
+			operate() {
+				if(this.name === "" || this.password === "") {
+					this.alert = '请填写完整信息'
+					return false;
 				}
-				this.INIT_DATA(this.name);
-				this.$router.push('chat');
+
+				const userInfo = {
+					name: this.name,
+					password: this.password,
+					avatar_url: '/static/avatar/' + Math.floor(Math.random()*23 + 1) + '.jpg'
+				}
+
+				if (this.type) {
+					// 登录
+					this.axios.post('/server/login', userInfo)
+						.then((res) => {
+							if (res.data.code === 0) {
+								const data = res.data.data
+								this.INIT_USER({ ...data })
+								
+								if (!data.group_id) { // 是否参与了分组
+									this.$router.push('choice')
+								} else {
+									this.INIT_GROUPID(data.group_id)
+									this.$router.push('chat')
+								}
+							}
+							this.alert = res.data.msg
+						})
+				} else {
+					// 注册
+					this.axios.post('/server/signUp', userInfo)
+						.then((res) => {
+							if (res.data.code === 0) {
+								const data = res.data.data
+								this.INIT_USER({ ...data })
+								this.$router.push('choice')
+							}
+							this.alert = res.data.msg
+						})
+				}
+
+				return true;
 			}
+		},
+		created() {
+			this.CLEAR_DATA()
 		}
 	}
 </script>
@@ -61,80 +119,73 @@
 		width: 100%;
 		background: black;
 		position: relative;
-	}
-	a {
-		width: 6rem;
-		height: 6rem;
-		line-height: 6rem;
-		text-decoration: none;
-		text-align: center;
-		position: absolute;
-		background: transparent;
-		color: white;
-		text-shadow: .3rem .5rem .5rem white;
-		font-weight: bolder;
-		font-size: 1.4rem;
-	}
-	a:nth-of-type(1) {
-		right: 7.5rem;
-	}
-	a:nth-of-type(2) {
-		right: .5rem;
-	}
-	section {
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		h1 {
-			color: white;
-			font-size: 4rem;
-		}
-		input {
-			height: 4rem;
-			width: 20rem;
-			font-size: 3rem;
-			font-weight: bolder;
-			padding: 2rem;
-			outline: none;
-			background: inherit;
-			border: none;
-			border-bottom: 1px solid white;
-			color: white;
-		}
-	}
-	.mask {
-		position: fixed;
-		height: 100%;
-		width: 100%;
-		background: rgba(0, 0, 0, .5);
-		top: 0;
-		left: 0;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		.about {
-			height: 32rem;
-			width: 20rem;
-			background: #eee;
-			text-align: center;
-			box-shadow: 0 0 20px black inset;
-			h1 {
-				font-size: 3rem;
-			}
-			p {
-				font-size: 2rem;
-			}
-			ul {
-				margin: 0;
-				padding: 0;
-				li {
-					list-style: none;
-					padding: 1rem;
+		
+		section {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			.icon {
+				display: inline-block;
+				box-sizing: border-box;
+				margin: 0 1rem 1rem;
+				padding: 1rem;
+				color: white;
+				font-size: 4rem;
+				border: 1px solid black;
+				transition: all .3s;
+				&.active, &:hover {
+					cursor: pointer;
+					color: lightblue;
+					border: 1px solid lightblue;
 				}
 			}
+			.icon-or {
+				font-size: 3rem;
+				color: #fff;
+			}
+			.line {
+				margin: 1rem;
+				.line-title {
+					display: inline-block;
+					width: 10rem;
+					color: #fff;
+					font-size: 3rem;
+					text-align: right;
+					vertical-align: bottom;
+				}
+				.line-input {
+					height: 4rem;
+					width: 15rem;
+					font-size: 3rem;
+					font-weight: bolder;
+					padding: 2rem;
+					outline: none;
+					background: inherit;
+					border: none;
+					border-bottom: 1px solid white;
+					color: white;
+				}
+				.line-button {
+					font-size: 2rem;
+					padding: 0.5rem 1rem;
+					border: 1px solid #fff;
+					background: #000;
+					color: #fff;
+					margin-top: 1rem;
+					transition: all .3s;
+					&:hover {
+						color: #000;
+						background: #fff;
+						cursor: pointer;
+					}
+				}
+				.line-alert {
+					font-size: 2.5rem;
+					color: orangered;
+				}
+			} 
 		}
 	}
 </style>
