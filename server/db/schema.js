@@ -6,7 +6,8 @@ const User = {
   name: String, // 用户名
   password: String, // 密码
   avatar_url: String, // 用户头像
-  group_id: String, // 分组id，
+  group_id: String, // 分组id
+  power: Number, // 用户权限 1. 管理员 2. 普通用户
 }
 
 // 聊天组模型

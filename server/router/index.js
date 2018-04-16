@@ -11,12 +11,49 @@ db.on('open', () => console.log('db connect success!'));
 // 引用数据模型
 const Model = require('../db/model');
 
+// 引入密码加密库MD5
+const md5 = require('md5');
+// 引入token库
+const jwt = require('jsonwebtoken');
+// token加密字段
+const secret = 'secretKeyAndYouDontKnowWhatHHH';
+
+// 校验token
+router.get('/checkToken', (req, res, next) => {
+  const token = req.cookies.token;
+  
+  jwt.verify(token, secret, (err, decoded) => {
+    if (err) res.sendStatus(404)
+    // 验证成功就把用户信息查找出来
+    Model.User.findOne({
+      name: decoded.n,
+      password: decoded.p,
+    }).exec((err, result) => {
+      if (err) res.sendStatus(404);
+      if (!result) {
+        res.status(200).json({
+          code: 1,
+          msg: '无效token'
+        });
+      } else {
+        res.status(200).json({
+          code: 0,
+          data: result,
+          msg: 'token验证成功'
+        })
+      }
+    })
+    
+  })
+
+})
+
 // 登录
 router.post('/login', (req, res, next) => {
   // 用户匹配
   Model.User.findOne({
     name: req.body.name,
-    password: req.body.password,
+    password: md5(req.body.password + md5(req.body.name)),
   }).exec((err, result) => {
     if (err) res.sendStatus(500);
     if (!result) {
@@ -26,6 +63,17 @@ router.post('/login', (req, res, next) => {
         msg: '用户/密码错误',
       });
     } else {
+      // 分发token
+      const token = jwt.sign({
+        n: result.name,
+        p: result.password,
+      }, secret, {
+        expiresIn: 10 * 60 * 1000,
+      });
+      res.cookie('token', token, {
+        maxAge: 60 * 1000,
+      });
+      
       res.status(200).json({
         code: 0,
         data: result,
@@ -54,14 +102,26 @@ router.post('/signUp', (req, res, next) => {
     } else {
       // 如果没有重复就新建用户
       const newUser = new Model.User({
-        name: req.body.name,
-        password: req.body.password,
-        avatar_url: req.body.avatar_url,
-        group_id: null,
+        name: req.body.name, // 用户名
+        password: md5(req.body.password + md5(req.body.name)), // 密码
+        avatar_url: req.body.avatar_url, // 用户头像
+        group_id: null, // 分组ID
+        power: 2, // 权限
       }).save((err, result) => {
         if (err) {
           res.sendStatus(500)
         } else {
+          // 分发token
+          const token = jwt.sign({
+            n: result.name,
+            p: result.password,
+          }, secret, {
+            expiresIn: 60 * 1000,
+          });
+          res.cookie('token', token, {
+            maxAge: 60 * 1000,
+          });
+          
           res.status(200).json({
             code: 0,
             data: result,

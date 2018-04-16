@@ -30,18 +30,22 @@ app.use((err, req, res, next) => {
   res.send(err)
 })
 
+
+// 存放每个房间的人数，房间key为group_id
+const rooms = {}
 // socket.io 逻辑
-let num = 0; // 在线人数统计
 io.on('connection', (socket) => { // 当有连接进入时
   console.log('online')
 
   // 通过 localhost:3000?group_id=xxx 的方式来划分房间
   const roomId = socket.handshake.query.group_id
-  console.log(roomId)
+  if (rooms[roomId] === undefined) {
+    rooms[roomId] = 0;
+  }
 
   socket.join(roomId) // 加入某房间
 
-  socket.to(roomId).emit('online', ++num); // 加入房间后，向房间内其他人广播online事件
+  socket.to(roomId).emit('online', ++rooms[roomId]); // 加入房间后，向房间内其他人广播online事件
 
   socket.to(roomId).on('groupMsg', (msg) => { // 当有人在某房间内发送消息时
     console.log('message')
@@ -50,13 +54,13 @@ io.on('connection', (socket) => { // 当有连接进入时
 
   socket.to(roomId).on('quitGroup', () => { // 当有人退出房间时
     console.log('quitGroup')
-    socket.to(roomId).emit('offline', --num); // 向其他人广播offline事件
+    socket.to(roomId).emit('offline', --rooms[roomId]); // 向其他人广播offline事件
     socket.leave(roomId) // 离开房间
   })
 
   socket.on('disconnect', () => { // 当有人关闭应用时
     console.log('offline')
-    socket.to(roomId).emit('offline', --num); // 向房间内其他人广播offline事件
+    socket.to(roomId).emit('offline', --rooms[roomId]); // 向房间内其他人广播offline事件
     socket.leave(roomId) // 离开房间
   })
 

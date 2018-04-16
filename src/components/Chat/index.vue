@@ -50,7 +50,13 @@
 				</div>
 			</transition>
 			<button @click="showEmoji=!showEmoji">Emoji</button>
-			<textarea v-model.trim="text" rows="1" @input="lineStandard" @keyup.ctrl.enter="sendMsg"></textarea>
+			<textarea
+				v-model.trim="text"
+				rows="1"
+				@input="lineStandard"
+				@keyup.ctrl.enter="sendMsg"
+				@click="showEmoji = false">
+			</textarea>
 			<button @click="sendMsg">提交</button>
 		</footer>
 	</div>
@@ -71,6 +77,8 @@
 				textDOM: {},
 				infos: [],
 				user_local: '',
+
+				type: 1, // 下线通知的类型（0. 点击退出按钮时的退出 1. 地址栏跳转的退出）
 			}
 		},
 		computed: {
@@ -97,12 +105,16 @@
 				}
 				this.axios.put('/server/quitGroup', req) // 清空数据库状态
 					.then((res) => {
+						this.type = 0;
+						
 						this.CLEAR_GROUPID(); // 清空本地状态
 						this.socket.emit('quitGroup') // 广播下线通知
 						this.$router.push('choice')
 					})
 			},
 			quitGroupSimple() { // 退出分组(只进行下线通知)
+				this.type = 0;
+				
 				this.socket.emit('quitGroup')
 			},
 			insertEmoji(index) { // 插入表情
@@ -195,12 +207,17 @@
 		},
 		created() {
 			if (!this.group_id) { // 没有分组就不能进入此路由
-				this.$router.redirect('/choice')
+				this.$router.replace('/choice')
 			} else {
 				this.INIT_GROUPNAME('')
 				this.getGroupInfo()
 			}
-		}
+		},
+		beforeDestroy() {
+			if (this.type) { // 根据type来区分是按钮退出还是路由跳转退出
+				this.quitGroupSimple();
+			}
+		},
 	}
 </script>
 

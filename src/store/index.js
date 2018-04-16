@@ -15,6 +15,7 @@ const state = {
 	user_name: '',
 	password: '',
 	avatar_url: '',
+	power: '',
 
 	// 用户分组
 	group_id: '',
@@ -25,10 +26,11 @@ const state = {
 }
 
 const mutations = {
-	[INIT_USER](state, { name, password, avatar_url }) { // 初始化用户
+	[INIT_USER](state, { name, password, avatar_url, power }) { // 初始化用户
 		state.user_name = name
 		state.password = password
 		state.avatar_url = avatar_url
+		state.power = power
 	},
 	[INIT_GROUPID](state, group_id) { // 赋值分组id
 		state.group_id = group_id

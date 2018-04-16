@@ -44,7 +44,8 @@ export default {
   computed: {
     ...mapState([
       'user_name',
-      'password'
+      'password',
+      'group_id',
     ])
   },
   data() {
@@ -107,7 +108,12 @@ export default {
     }
   },
   created() {
-    this.getGroups()
+    // 如果存在group_id就不能进入此路由，因为用户已经属于某分组，除非他退出分组
+    if (this.group_id) {
+      this.$router.replace('/chat');
+    } else {
+      this.getGroups()
+    }
   }
 }
 </script>

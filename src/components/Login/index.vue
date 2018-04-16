@@ -1,6 +1,16 @@
 <template>
 	<div class="login-container">
-		<section>
+		<!-- 背景视频 -->
+		<section class="video">
+			<video
+				src="/static/movie/office.mp4"
+				autoplay
+				loop>
+				您的浏览器不支持内嵌视频，请使用更高版本的浏览器0_0
+			</video>
+		</section>
+		<!-- 页面主体 -->
+		<section class="content">
 			<h1>
 				<span
 					class="icon"
@@ -98,6 +108,7 @@
 							if (res.data.code === 0) {
 								const data = res.data.data
 								this.INIT_USER({ ...data })
+
 								this.$router.push('choice')
 							}
 							this.alert = res.data.msg
@@ -109,6 +120,25 @@
 		},
 		created() {
 			this.CLEAR_DATA()
+			
+			// 判断cookie中是否存在token，存在就进行验证
+			const match = window.document.cookie.match(/token=\S*/g);
+			if (match) {
+				this.axios.get('/server/checkToken')
+					.then((res) => { // 通过就自动登录
+						if (res.data.code === 0) {
+							const data = res.data.data
+							this.INIT_USER({ ...data })
+
+							if (!data.group_id) {
+								this.$router.push('choice')
+							} else {
+								this.INIT_GROUPID(data.group_id)
+								this.$router.push('chat')
+							}
+						}
+					})
+			}
 		}
 	}
 </script>
@@ -120,25 +150,30 @@
 		background: black;
 		position: relative;
 		
-		section {
+		.content {
 			height: 100%;
+			width: 100%;
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
 			align-items: center;
+			position: absolute;
+			z-index: 10;
 			.icon {
 				display: inline-block;
 				box-sizing: border-box;
 				margin: 0 1rem 1rem;
 				padding: 1rem;
 				color: white;
-				font-size: 4rem;
-				border: 1px solid black;
+				font-size: 3rem;
+				border: 1px solid #fff;
+				border-radius: 10%;
 				transition: all .3s;
 				&.active, &:hover {
 					cursor: pointer;
 					color: lightblue;
 					border: 1px solid lightblue;
+					background: black;
 				}
 			}
 			.icon-or {
@@ -151,16 +186,16 @@
 					display: inline-block;
 					width: 10rem;
 					color: #fff;
-					font-size: 3rem;
+					font-size: 2.5rem;
 					text-align: right;
-					vertical-align: bottom;
+					vertical-align: middle;
 				}
 				.line-input {
 					height: 4rem;
-					width: 15rem;
-					font-size: 3rem;
+					width: 12rem;
+					font-size: 2.5rem;
 					font-weight: bolder;
-					padding: 2rem;
+					padding: 2rem .5rem;
 					outline: none;
 					background: inherit;
 					border: none;
@@ -168,10 +203,12 @@
 					color: white;
 				}
 				.line-button {
-					font-size: 2rem;
-					padding: 0.5rem 1rem;
+					font-size: 2.5rem;
+					padding: .6rem 1.5rem .7rem;
 					border: 1px solid #fff;
-					background: #000;
+					border-radius: 10%;
+					outline: none;
+					background: transparent;
 					color: #fff;
 					margin-top: 1rem;
 					transition: all .3s;
@@ -186,6 +223,19 @@
 					color: orangered;
 				}
 			} 
+		}
+
+		.video {
+			position: absolute;
+			height: 100%;
+			width: 100%;
+			z-index: 5;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			video {
+				height: 100%;
+			}
 		}
 	}
 </style>
