@@ -278,19 +278,35 @@ router.get('/getInfos/:group_id', (req, res, next) => {
 // 保存信息
 router.post('/saveInfo', (req, res, next) => {
   const body = req.body;
-  const newInfo = new Model.Info({
-    ...body
-  }).save((err, result) => {
-    if (err) {
-      res.sendStatus(500)
+  // 查找分组是否存在，存在才能保存
+  Model.Group.findOne({
+    _id: body.group_id
+  }).exec((err, result) => {
+    if (err) res.sendStatus(500)
+    if (!result) {
+      res.status(404).json({
+        code: 1,
+        data: null,
+        msg: '分组不存在'
+      })
     } else {
-      res.status(200).json({
-        code: 0,
-        data: result,
-        msg: '消息保存成功'
+      const newInfo = new Model.Info({
+        ...body
+      }).save((err, result) => {
+        if (err) {
+          res.sendStatus(500)
+        } else {
+          res.status(200).json({
+            code: 0,
+            data: result,
+            msg: '消息保存成功'
+          })
+        }
       })
     }
   })
+  
+  
 });
 
 // 删除分组

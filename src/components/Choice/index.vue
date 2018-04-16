@@ -1,5 +1,6 @@
 <template>
   <div class="choice">
+
     <!-- 分组列表 -->
     <section class="choice-groups">
       <!-- 登出 -->
@@ -23,6 +24,7 @@
         <span class="group-add">+</span>
       </div>
     </section>
+
     <!-- 新建分组 -->
     <transition name="group">
       <section class="new-group" v-show="visible" @click="visible = false">
@@ -38,6 +40,7 @@
         <button class="new-group-button" @click.stop="addGroup">确认</button>
       </section>
     </transition>
+
     <!-- 删除分组 -->
     <transition name="group">
       <section class="operate-group" v-show="operateVisible" @click="operateVisible = false">
@@ -102,7 +105,7 @@ export default {
     getGroups() {
       this.axios.get('/server/getGroups')
         .then((res) => {
-          if (res.data.code === 0) {
+          if (res.status === 200) {
             this.groups = res.data.data
           }
         })
@@ -132,7 +135,7 @@ export default {
       this.axios.delete(`/server/deleteGroup/${this.group_id}`)
         .then((res) => {
           if (res.data.code === 0) {
-            alert(res.data.msg)
+            alert('删除成功')
             this.operateVisible = false
             this.getGroups()
           } else {
