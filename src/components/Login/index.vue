@@ -195,7 +195,6 @@
 					width: 12rem;
 					font-size: 2.5rem;
 					font-weight: bolder;
-					padding: 2rem .5rem;
 					outline: none;
 					background: inherit;
 					border: none;

@@ -293,5 +293,32 @@ router.post('/saveInfo', (req, res, next) => {
   })
 });
 
+// 删除分组
+router.delete('/deleteGroup/:group_id', (req, res, next) => {
+  const group_id = req.params.group_id
+  // 删除分组
+  Model.Group.deleteOne({
+    _id: group_id
+  }).exec((err, result) => {
+    if (err) {
+      res.sendStatus(500)
+    } else {
+      // 删除该分组所有信息
+      Model.Info.deleteMany({
+        group_id
+      }).exec((err, result) => {
+        if (err) {
+          res.sendStatus(500)
+        } else {
+          res.status(200).json({
+            code: 0,
+            data: result,
+            msg: '删除成功'
+          })
+        }
+      })
+    }
+  })
+})
 
 module.exports = router;

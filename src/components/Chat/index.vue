@@ -157,6 +157,9 @@
 						if (res.data.code === 0) {
 							this.INIT_GROUPNAME(res.data.data.name)
 							this.getGroupMsg()
+						} else {
+							this.CLEAR_GROUPID()
+							this.$router.push('choice')
 						}
 					})
 			},

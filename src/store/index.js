@@ -32,7 +32,7 @@ const mutations = {
 		state.avatar_url = avatar_url
 		state.power = power
 	},
-	[INIT_GROUPID](state, group_id) { // 赋值分组id
+	[INIT_GROUPID](state, group_id) {
 		state.group_id = group_id
 	},
 	[INIT_GROUPNAME](state, group_name) {
@@ -41,13 +41,15 @@ const mutations = {
 	[CLEAR_GROUPID](state) {
 		state.group_id = ''
 	},
-	[CLEAR_DATA](state) { // 清空数据
+	[CLEAR_DATA](state) { // 清空状态
 		state.user_name = ''
 		state.password = ''
 		state.avatar_url = ''
+		state.power = ''
 		state.group_id = ''
+		state.group_name = ''
 	},
-	[CHAT_STANDARD](state) {
+	[CHAT_STANDARD](state) { // 聊天记录框scrollTop格式化
 		let chatDOM = document.querySelector('section')
 		let fHeight = document.querySelector('footer').clientHeight
 		chatDOM.scrollTop = chatDOM.scrollHeight - chatDOM.clientHeight + fHeight
