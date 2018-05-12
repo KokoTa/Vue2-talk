@@ -1,12 +1,12 @@
 <template>
 	<div class="login-container">
-		<!-- 背景视频 -->
-		<section class="video">
+		<!-- 背景 -->
+		<section class="video-wrap">
 			<video
+				class="video"
 				src="/static/movie/office.mp4"
 				autoplay
 				loop>
-				您的浏览器不支持内嵌视频，请使用更高版本的浏览器0_0
 			</video>
 		</section>
 		<!-- 页面主体 -->
@@ -224,15 +224,14 @@
 			} 
 		}
 
-		.video {
+		.video-wrap {
 			position: absolute;
 			height: 100%;
 			width: 100%;
 			z-index: 5;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			video {
+			text-align: center;
+
+			& .video {
 				height: 100%;
 			}
 		}

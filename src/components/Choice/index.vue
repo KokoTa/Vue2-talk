@@ -6,7 +6,7 @@
       <!-- 登出 -->
       <div class="header">
         <span class="title">分组列表</span>
-        <button class="button" @click="loginOut">登出</button>
+        <button class="button" @click="loginOut">退出账户</button>
       </div>
       <!-- 分组列表 -->
       <div
@@ -183,8 +183,8 @@ export default {
     top: 0;
     left: 0;
     .button {
-      width: 6rem;
-      font-size: 2rem;
+      width: 8rem;
+      font-size: 1.5rem;
       height: 100%;
       background: transparent;
       border: none;

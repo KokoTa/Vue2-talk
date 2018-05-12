@@ -3,7 +3,7 @@
 		<header>
 			<button @click="gotoAI">A I</button>
 			<span>{{ group_name }}</span>
-			<button @click="quitGroup">退 出</button>
+			<button @click="quitGroup">退出分组</button>
 		</header>
 
 		<section>
